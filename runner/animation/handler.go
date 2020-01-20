@@ -7,19 +7,24 @@ type animInfo struct {
 	speed int
 }
 
-// Handler
+var handler	*Handler = nil
+
+// Handler animation handler
 type Handler struct {
-	animMap map[string]animInfo
-	currentAnim animInfo
-	lastIdx int
-	remainframes int
+	animMap 		map[string]animInfo
+	currentAnim		animInfo
+	lastIdx 		int
+	remainFrames	int
 }
 
-// New make a new handler
+// New make a new handler singleton
 func New() *Handler {
-	h := &Handler{}
-	h.animMap = make(map[string]animInfo)
-	return h
+	if handler == nil {
+		handler = &Handler{}
+		handler.animMap = make(map[string]animInfo)
+	}
+
+	return handler
 }
 
 // Add add new animation
@@ -31,7 +36,7 @@ func (h *Handler) Add(name string, sprites []*ebiten.Image, speed int) {
 func (h *Handler) Play(name string) {
 	h.currentAnim = h.animMap[name]
 	h.lastIdx = 0
-	h.remainframes = h.currentAnim.speed
+	h.remainFrames = h.currentAnim.speed
 }
 
 // Update draw animation frame
@@ -40,12 +45,12 @@ func (h *Handler) Update(screen *ebiten.Image, x, y float64) {
 	op.GeoM.Translate(x, y)
 	screen.DrawImage(h.currentAnim.sprites[h.lastIdx], op)
 
-	h.remainframes--
-	if h.remainframes == 0 {
+	h.remainFrames--
+	if h.remainFrames == 0 {
 		h.lastIdx++
 		if len(h.currentAnim.sprites) == h.lastIdx {
 			h.lastIdx = 0
 		}
-		h.remainframes = h.currentAnim.speed
+		h.remainFrames = h.currentAnim.speed
 	}
 }
